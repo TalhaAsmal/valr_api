@@ -5,9 +5,17 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "valr-api"
 version = "0.1.0"
+authors = [
+  { name="Talha Asmal", email="talha.asmal@gmail.com" },
+]
 description = "Python client for the Valr API"
 readme = "README.md"
 requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: MIT License",
+]
 dependencies = [
     "black>=23.0.0",
     "build>=0.10.0",
@@ -21,3 +29,9 @@ dependencies = [
     "twine>=4.0.0",
     "types-requests>=2.31.0",
 ]
+
+[project.urls]
+"Homepage" = "https://github.com/TalhaAsmal/valr_api"
+"Bug Tracker" = "https://github.com/TalhaAsmal/valr_api/issues"
+"Documentation" = "https://github.com/TalhaAsmal/valr_api#readme"
+"Source Code" = "https://github.com/TalhaAsmal/valr_api"
