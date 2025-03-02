@@ -1,6 +1,7 @@
 """
 VALR Account API endpoints
 """
+
 from typing import Dict, List, Optional
 
 
@@ -8,20 +9,20 @@ class AccountAPI:
     """
     VALR Account API endpoints
     """
-    
+
     def __init__(self, client):
         self.client = client
-    
+
     def get_balances(self, subaccount_id: Optional[str] = None) -> List[Dict]:
         """
         Get the account balances
-        
+
         Args:
             subaccount_id: Optional subaccount ID
-            
+
         Returns:
             List of account balances
-            
+
         Example:
             [
                 {
@@ -33,64 +34,64 @@ class AccountAPI:
                 ...
             ]
         """
-        return self.client.get("/v1/account/balances", auth_required=True, subaccount_id=subaccount_id)
-    
+        endpoint = "/v1/account/balances"
+        return self.client._get(
+            endpoint=endpoint,
+            auth_type=self.client.SIGNED_AUTH,
+            subaccount_id=subaccount_id,
+        )
+
     def get_transaction_history(
         self,
         skip: int = 0,
-        limit: int = 100,
-        currency: Optional[str] = None,
+        limit: int = 10,
         transaction_types: Optional[List[str]] = None,
+        currency: Optional[str] = None,
+        start_time: Optional[int] = None,
+        end_time: Optional[int] = None,
         subaccount_id: Optional[str] = None,
-    ) -> Dict:
+    ):
         """
-        Get transaction history
-        
+        Get transaction history.
+
         Args:
-            skip: Number of transactions to skip (for pagination)
-            limit: Maximum number of transactions to return (default is 100, max is 100)
-            currency: Filter by currency
-            transaction_types: Filter by transaction types
-            subaccount_id: Optional subaccount ID
-            
+            skip (int, optional): Number of transactions to skip. Defaults to 0.
+            limit (int, optional): Number of transactions to return. Defaults to 10.
+            transaction_types (List[str], optional): Types of transactions to return
+                Defaults to None.
+            currency (str, optional): Currency to filter by. Defaults to None.
+            start_time (int, optional): Start time in milliseconds. Defaults to None.
+            end_time (int, optional): End time in milliseconds. Defaults to None.
+            subaccount_id (str, optional): Subaccount ID. Defaults to None.
+
         Returns:
-            Dictionary containing transaction history and pagination info
-            
-        Example:
-            {
-                "transactions": [
-                    {
-                        "transactionType": "WITHDRAWAL",
-                        "currency": "BTC",
-                        "amount": "0.01",
-                        "fee": "0.0001",
-                        "timestamp": "2019-06-28T10:01:09.465Z",
-                        "status": "COMPLETED",
-                        ...
-                    },
-                    ...
-                ],
-                "isLastPage": true
-            }
+            list: List of transactions.
         """
+        endpoint = "/v1/account/transactionhistory"
         params = {
             "skip": skip,
             "limit": limit,
         }
-        
-        if currency:
-            params["currency"] = currency
-            
+
         if transaction_types:
             params["transactionTypes"] = ",".join(transaction_types)
-            
-        return self.client.get(
-            "/v1/account/transactionhistory",
+
+        if currency:
+            params["currency"] = currency
+
+        if start_time:
+            params["startTime"] = str(start_time)
+
+        if end_time:
+            params["endTime"] = str(end_time)
+
+        return self.client._get(
+            endpoint=endpoint,
             params=params,
-            auth_required=True,
+            auth_type=self.client.SIGNED_AUTH,
             subaccount_id=subaccount_id,
         )
-    
+
     def get_trade_history(
         self,
         pair: str,
@@ -100,16 +101,16 @@ class AccountAPI:
     ) -> Dict:
         """
         Get trade history for a specific currency pair
-        
+
         Args:
             pair: Currency pair (e.g., BTCZAR)
             skip: Number of trades to skip (for pagination)
             limit: Maximum number of trades to return (default is 100, max is 100)
             subaccount_id: Optional subaccount ID
-            
+
         Returns:
             Dictionary containing trade history and pagination info
-            
+
         Example:
             {
                 "trades": [
@@ -127,25 +128,26 @@ class AccountAPI:
                 "isLastPage": true
             }
         """
+        endpoint = f"/v1/account/{pair}/tradehistory"
         params = {
             "skip": skip,
             "limit": limit,
         }
-        
-        return self.client.get(
-            f"/v1/account/{pair}/tradehistory",
+
+        return self.client._get(
+            endpoint=endpoint,
             params=params,
-            auth_required=True,
+            auth_type=self.client.SIGNED_AUTH,
             subaccount_id=subaccount_id,
         )
-    
+
     def get_subaccounts(self) -> List[Dict]:
         """
         Get all subaccounts
-        
+
         Returns:
             List of subaccounts
-            
+
         Example:
             [
                 {
@@ -157,4 +159,23 @@ class AccountAPI:
                 ...
             ]
         """
-        return self.client.get("/v1/account/subaccounts", auth_required=True) 
+        return self.client._get(
+            "/v1/account/subaccounts", auth_type=self.client.SIGNED_AUTH
+        )
+
+    def get_trade_history_by_currency_pair(self, currency_pair: str, limit: int = 10):
+        """
+        Get trade history by currency pair.
+
+        Args:
+            currency_pair (str): Currency pair to get trade history for.
+            limit (int, optional): Number of trades to return. Defaults to 10.
+
+        Returns:
+            list: List of trades.
+        """
+        endpoint = f"/v1/account/{currency_pair}/tradehistory"
+        params = {"limit": limit}
+        return self.client._get(
+            endpoint=endpoint, params=params, auth_type=self.client.SIGNED_AUTH
+        )

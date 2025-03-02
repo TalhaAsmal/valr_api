@@ -1,6 +1,7 @@
 """
 Pytest fixtures for VALR API tests
 """
+
 import pytest
 
 from valr_api.client import ValrClient
@@ -19,4 +20,4 @@ def client():
 @pytest.fixture
 def unauthenticated_client():
     """Create an unauthenticated VALR API client for testing"""
-    return ValrClient(base_url="https://api.valr.com") 
+    return ValrClient(base_url="https://api.valr.com")

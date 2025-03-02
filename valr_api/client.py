@@ -1,11 +1,13 @@
 """
 VALR API client
 """
+
 import json
 import logging
 from typing import Dict, List, Optional, Union
 
 import requests
+import time
 
 from valr_api.api.account import AccountAPI
 from valr_api.api.market_data import MarketDataAPI
@@ -24,7 +26,7 @@ from valr_api.utils.auth import generate_signature, get_timestamp
 class ValrClient:
     """
     VALR API client
-    
+
     Args:
         api_key: VALR API key
         api_secret: VALR API secret
@@ -45,16 +47,16 @@ class ValrClient:
         self.timeout = timeout
         self.session = requests.Session()
         self.logger = logging.getLogger(__name__)
-        
+
         # Initialize API endpoints
         self.public = PublicAPI(self)
         self.market_data = MarketDataAPI(self)
-        
+
         # These endpoints require authentication
         if api_key and api_secret:
             self.account = AccountAPI(self)
             self.wallet = WalletAPI(self)
-    
+
     def _request(
         self,
         method: str,
@@ -66,7 +68,7 @@ class ValrClient:
     ) -> Union[Dict, List]:
         """
         Make request to VALR API
-        
+
         Args:
             method: HTTP method (GET, POST, PUT, DELETE)
             endpoint: API endpoint path
@@ -74,10 +76,10 @@ class ValrClient:
             data: Request body for POST/PUT requests
             auth_required: Whether authentication is required
             subaccount_id: Optional subaccount ID for requests
-        
+
         Returns:
             Response from API as dictionary or list
-        
+
         Raises:
             ValrAuthenticationError: If authentication fails
             ValrRequestError: If request is invalid
@@ -86,13 +88,15 @@ class ValrClient:
             ValrApiError: For any other API error
         """
         url = f"{self.base_url}{endpoint}"
-        
+
         headers = {}
-        
+
         if auth_required:
             if not self.api_key or not self.api_secret:
-                raise ValrAuthenticationError("API key and secret are required for authenticated endpoints")
-            
+                raise ValrAuthenticationError(
+                    "API key and secret are required for authenticated endpoints"
+                )
+
             timestamp = get_timestamp()
             signature = generate_signature(
                 self.api_secret,
@@ -101,22 +105,24 @@ class ValrClient:
                 endpoint,
                 data,
             )
-            
-            headers.update({
-                "X-VALR-API-KEY": self.api_key,
-                "X-VALR-SIGNATURE": signature,
-                "X-VALR-TIMESTAMP": str(timestamp),
-            })
-            
+
+            headers.update(
+                {
+                    "X-VALR-API-KEY": self.api_key,
+                    "X-VALR-SIGNATURE": signature,
+                    "X-VALR-TIMESTAMP": str(timestamp),
+                }
+            )
+
             if subaccount_id:
                 headers["X-VALR-SUBACCOUNT-ID"] = subaccount_id
-        
+
         if data is not None:
             headers["Content-Type"] = "application/json"
             data_str = json.dumps(data)
         else:
             data_str = None
-        
+
         try:
             response = self.session.request(
                 method=method,
@@ -126,11 +132,11 @@ class ValrClient:
                 data=data_str,
                 timeout=self.timeout,
             )
-            
+
             # Log request details in debug mode
             self.logger.debug(f"Request: {method} {url} {params} {data}")
             self.logger.debug(f"Response: {response.status_code} {response.text}")
-            
+
             # Handle error responses
             if not response.ok:
                 if response.status_code == 401:
@@ -163,43 +169,158 @@ class ValrClient:
                         status_code=response.status_code,
                         response=response.text,
                     )
-            
+
             # Return response data
             if response.text:
                 return response.json()
             return {}
-                
+
         except requests.RequestException as e:
             raise ValrApiError(f"Request failed: {str(e)}")
-    
-    def get(self, endpoint: str, params: Optional[Dict] = None, auth_required: bool = False,
-            subaccount_id: Optional[str] = None) -> Union[Dict, List]:
+
+    def get(
+        self,
+        endpoint: str,
+        params: Optional[Dict] = None,
+        auth_required: bool = False,
+        subaccount_id: Optional[str] = None,
+    ) -> Union[Dict, List]:
         """
         Make GET request to VALR API
         """
-        return self._request("GET", endpoint, params=params, auth_required=auth_required,
-                            subaccount_id=subaccount_id)
-    
-    def post(self, endpoint: str, data: Dict, params: Optional[Dict] = None, auth_required: bool = True,
-             subaccount_id: Optional[str] = None) -> Union[Dict, List]:
+        return self._request(
+            "GET",
+            endpoint,
+            params=params,
+            auth_required=auth_required,
+            subaccount_id=subaccount_id,
+        )
+
+    def post(
+        self,
+        endpoint: str,
+        data: Dict,
+        params: Optional[Dict] = None,
+        auth_required: bool = True,
+        subaccount_id: Optional[str] = None,
+    ) -> Union[Dict, List]:
         """
         Make POST request to VALR API
         """
-        return self._request("POST", endpoint, params=params, data=data, auth_required=auth_required,
-                            subaccount_id=subaccount_id)
-    
-    def put(self, endpoint: str, data: Dict, params: Optional[Dict] = None, auth_required: bool = True,
-            subaccount_id: Optional[str] = None) -> Union[Dict, List]:
+        return self._request(
+            "POST",
+            endpoint,
+            params=params,
+            data=data,
+            auth_required=auth_required,
+            subaccount_id=subaccount_id,
+        )
+
+    def put(
+        self,
+        endpoint: str,
+        data: Dict,
+        params: Optional[Dict] = None,
+        auth_required: bool = True,
+        subaccount_id: Optional[str] = None,
+    ) -> Union[Dict, List]:
         """
         Make PUT request to VALR API
         """
-        return self._request("PUT", endpoint, params=params, data=data, auth_required=auth_required,
-                           subaccount_id=subaccount_id)
-    
-    def delete(self, endpoint: str, params: Optional[Dict] = None, data: Optional[Dict] = None,
-               auth_required: bool = True, subaccount_id: Optional[str] = None) -> Union[Dict, List]:
+        return self._request(
+            "PUT",
+            endpoint,
+            params=params,
+            data=data,
+            auth_required=auth_required,
+            subaccount_id=subaccount_id,
+        )
+
+    def delete(
+        self,
+        endpoint: str,
+        params: Optional[Dict] = None,
+        data: Optional[Dict] = None,
+        auth_required: bool = True,
+        subaccount_id: Optional[str] = None,
+    ) -> Union[Dict, List]:
         """
         Make DELETE request to VALR API
         """
-        return self._request("DELETE", endpoint, params=params, data=data, auth_required=auth_required,
-                            subaccount_id=subaccount_id) 
+        return self._request(
+            "DELETE",
+            endpoint,
+            params=params,
+            data=data,
+            auth_required=auth_required,
+            subaccount_id=subaccount_id,
+        )
+
+    def _handle_response(self, response):
+        """
+        Handle the response from the API.
+
+        Args:
+            response (requests.Response): Response from the API.
+
+        Returns:
+            dict: Response data.
+
+        Raises:
+            ValrRequestException: If the request fails.
+        """
+        if response.status_code == 200:
+            return response.json()
+
+        error_message = f"Request failed with status code {response.status_code}"
+
+        try:
+            error_data = response.json()
+            if "message" in error_data:
+                error_message = error_data["message"]
+        except ValueError:
+            pass
+
+        if response.status_code == 401:
+            raise ValrAuthenticationError(error_message)
+        elif response.status_code == 429:
+            raise ValrRateLimitError(error_message)
+        elif 400 <= response.status_code < 500:
+            raise ValrRequestError(error_message)
+        else:
+            raise ValrServerError(error_message)
+
+    def _get_headers(self, auth_type, endpoint, params=None, data=None):
+        """
+        Get the headers for the request.
+
+        Args:
+            auth_type (str): Authentication type.
+            endpoint (str): API endpoint.
+            params (dict, optional): Query parameters. Defaults to None.
+            data (dict, optional): Request data. Defaults to None.
+
+        Returns:
+            dict: Headers for the request.
+        """
+        headers = {"Accept": "application/json", "Content-Type": "application/json"}
+
+        if auth_type == self.SIGNED_AUTH:
+            timestamp = int(time.time() * 1000)
+            signature = generate_signature(
+                api_secret=self.api_secret,
+                timestamp=timestamp,
+                method="GET",
+                path=endpoint,
+                body=data,
+            )
+
+            headers.update(
+                {
+                    "X-VALR-API-KEY": self.api_key,
+                    "X-VALR-SIGNATURE": signature,
+                    "X-VALR-TIMESTAMP": str(timestamp),
+                }
+            )
+
+        return headers

@@ -6,8 +6,8 @@ from valr_api.exceptions.exceptions import (
     ValrApiError,
     ValrAuthenticationError,
     ValrRateLimitError,
-    ValrServerError,
     ValrRequestError,
+    ValrServerError,
 )
 
 __all__ = [
@@ -16,4 +16,4 @@ __all__ = [
     "ValrRateLimitError",
     "ValrServerError",
     "ValrRequestError",
-] 
+]

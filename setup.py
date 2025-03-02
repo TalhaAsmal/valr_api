@@ -31,4 +31,4 @@ setup(
         "requests>=2.25.0",
     ],
     python_requires=">=3.8",
-) 
+)

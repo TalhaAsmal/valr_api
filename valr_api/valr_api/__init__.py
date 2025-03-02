@@ -10,4 +10,4 @@ __license__ = "MIT"
 
 from valr_api.client import ValrClient
 
-__all__ = ["ValrClient"] 
+__all__ = ["ValrClient"]
