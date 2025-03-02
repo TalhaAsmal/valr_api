@@ -2,7 +2,7 @@
 VALR Public API endpoints
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 
 class PublicAPI:
@@ -13,7 +13,7 @@ class PublicAPI:
     def __init__(self, client):
         self.client = client
 
-    def get_currencies(self) -> List[Dict]:
+    def get_currencies(self) -> List[Dict[str, Any]]:
         """
         Get all supported currencies
 
@@ -33,7 +33,7 @@ class PublicAPI:
         """
         return self.client.get("/v1/public/currencies")
 
-    def get_currency_pairs(self) -> List[Dict]:
+    def get_currency_pairs(self) -> List[Dict[str, Any]]:
         """
         Get all supported currency pairs
 
@@ -56,7 +56,7 @@ class PublicAPI:
         """
         return self.client.get("/v1/public/pairs")
 
-    def get_order_types(self, pair: Optional[str] = None) -> List[Dict]:
+    def get_order_types(self, pair: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         Get supported order types
 
@@ -81,7 +81,7 @@ class PublicAPI:
             return self.client.get(f"/v1/public/{pair}/orderTypes")
         return self.client.get("/v1/public/orderTypes")
 
-    def get_status(self) -> Dict:
+    def get_status(self) -> Dict[str, Any]:
         """
         Get VALR API server status
 

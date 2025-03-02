@@ -4,7 +4,7 @@ VALR API client
 
 import json
 import logging
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, Any, cast
 
 import requests
 import time
@@ -33,6 +33,10 @@ class ValrClient:
         base_url: VALR API base URL (defaults to https://api.valr.com)
         timeout: Request timeout in seconds
     """
+
+    # Authentication types
+    BASIC_AUTH = "BASIC"
+    SIGNED_AUTH = "SIGNED"
 
     def __init__(
         self,
@@ -65,7 +69,7 @@ class ValrClient:
         data: Optional[Dict] = None,
         auth_required: bool = False,
         subaccount_id: Optional[str] = None,
-    ) -> Union[Dict, List]:
+    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """
         Make request to VALR API
 
@@ -172,7 +176,7 @@ class ValrClient:
 
             # Return response data
             if response.text:
-                return response.json()
+                return cast(Union[Dict[str, Any], List[Dict[str, Any]]], response.json())
             return {}
 
         except requests.RequestException as e:
@@ -184,7 +188,7 @@ class ValrClient:
         params: Optional[Dict] = None,
         auth_required: bool = False,
         subaccount_id: Optional[str] = None,
-    ) -> Union[Dict, List]:
+    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """
         Make GET request to VALR API
         """
@@ -203,7 +207,7 @@ class ValrClient:
         params: Optional[Dict] = None,
         auth_required: bool = True,
         subaccount_id: Optional[str] = None,
-    ) -> Union[Dict, List]:
+    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """
         Make POST request to VALR API
         """
@@ -223,7 +227,7 @@ class ValrClient:
         params: Optional[Dict] = None,
         auth_required: bool = True,
         subaccount_id: Optional[str] = None,
-    ) -> Union[Dict, List]:
+    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """
         Make PUT request to VALR API
         """
@@ -243,7 +247,7 @@ class ValrClient:
         data: Optional[Dict] = None,
         auth_required: bool = True,
         subaccount_id: Optional[str] = None,
-    ) -> Union[Dict, List]:
+    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         """
         Make DELETE request to VALR API
         """
@@ -256,7 +260,7 @@ class ValrClient:
             subaccount_id=subaccount_id,
         )
 
-    def _handle_response(self, response):
+    def _handle_response(self, response) -> Dict[str, Any]:
         """
         Handle the response from the API.
 
@@ -270,7 +274,7 @@ class ValrClient:
             ValrRequestException: If the request fails.
         """
         if response.status_code == 200:
-            return response.json()
+            return cast(Dict[str, Any], response.json())
 
         error_message = f"Request failed with status code {response.status_code}"
 
@@ -290,7 +294,7 @@ class ValrClient:
         else:
             raise ValrServerError(error_message)
 
-    def _get_headers(self, auth_type, endpoint, params=None, data=None):
+    def _get_headers(self, auth_type: str, endpoint: str, params=None, data=None) -> Dict[str, str]:
         """
         Get the headers for the request.
 
@@ -305,12 +309,12 @@ class ValrClient:
         """
         headers = {"Accept": "application/json", "Content-Type": "application/json"}
 
-        if auth_type == self.SIGNED_AUTH:
+        if auth_type == self.SIGNED_AUTH and self.api_secret is not None and self.api_key is not None:
             timestamp = int(time.time() * 1000)
             signature = generate_signature(
                 api_secret=self.api_secret,
                 timestamp=timestamp,
-                method="GET",
+                verb="GET",
                 path=endpoint,
                 body=data,
             )
@@ -324,3 +328,39 @@ class ValrClient:
             )
 
         return headers
+
+    def _get(
+        self,
+        endpoint: str,
+        params: Optional[Dict] = None,
+        auth_type: Optional[str] = None,
+        subaccount_id: Optional[str] = None,
+    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+        """
+        Make a GET request to the API.
+
+        Args:
+            endpoint (str): API endpoint.
+            params (dict, optional): Query parameters. Defaults to None.
+            auth_type (str, optional): Authentication type. Defaults to None.
+            subaccount_id (str, optional): Subaccount ID. Defaults to None.
+
+        Returns:
+            Union[Dict, List]: Response data.
+        """
+        if auth_type is None:
+            auth_type = self.BASIC_AUTH
+            
+        headers = self._get_headers(auth_type, endpoint, params)
+        
+        if subaccount_id:
+            headers["X-VALR-SUBACCOUNT-ID"] = subaccount_id
+
+        response = self.session.get(
+            f"{self.base_url}{endpoint}",
+            params=params,
+            headers=headers,
+            timeout=self.timeout,
+        )
+        
+        return cast(Union[Dict[str, Any], List[Dict[str, Any]]], self._handle_response(response))

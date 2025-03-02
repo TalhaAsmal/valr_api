@@ -2,7 +2,7 @@
 VALR Market Data API endpoints
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 
 
 class MarketDataAPI:
@@ -13,7 +13,7 @@ class MarketDataAPI:
     def __init__(self, client):
         self.client = client
 
-    def get_orderbook(self, pair: str) -> Dict:
+    def get_orderbook(self, pair: str) -> Dict[str, Any]:
         """
         Get the current orderbook for a given currency pair
 
@@ -38,7 +38,7 @@ class MarketDataAPI:
         """
         return self.client.get(f"/v1/marketdata/{pair}/orderbook")
 
-    def get_orderbook_summary(self, pair: str) -> List[Dict]:
+    def get_orderbook_summary(self, pair: str) -> List[Dict[str, Any]]:
         """
         Get a summary of the current orderbook for a given currency pair
 
@@ -50,7 +50,7 @@ class MarketDataAPI:
         """
         return self.client.get(f"/v1/marketdata/{pair}/orderbook/summary")
 
-    def get_orderbook_full(self, currency_pair: str):
+    def get_orderbook_full(self, currency_pair: str) -> Dict[str, Any]:
         """
         Get the full orderbook for a currency pair.
 
@@ -63,7 +63,7 @@ class MarketDataAPI:
         endpoint = f"/v1/marketdata/{currency_pair}/orderbook"
         return self.client._get(endpoint=endpoint, auth_type=self.client.BASIC_AUTH)
 
-    def get_trade_history(self, currency_pair: str, limit: int = 100):
+    def get_trade_history(self, currency_pair: str, limit: int = 100) -> List[Dict[str, Any]]:
         """
         Get trade history for a currency pair.
 
@@ -80,7 +80,7 @@ class MarketDataAPI:
             endpoint=endpoint, params=params, auth_type=self.client.BASIC_AUTH
         )
 
-    def get_market_summary(self, pair: Optional[str] = None) -> List[Dict]:
+    def get_market_summary(self, pair: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         Get market summary information
 
@@ -112,7 +112,7 @@ class MarketDataAPI:
             return self.client.get(f"/v1/marketdata/{pair}/marketsummary")
         return self.client.get("/v1/marketdata/marketsummary")
 
-    def get_server_time(self):
+    def get_server_time(self) -> Dict[str, Any]:
         """
         Get the server time.
 

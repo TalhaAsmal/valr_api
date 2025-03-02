@@ -2,7 +2,7 @@
 VALR Account API endpoints
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any, Union, cast
 
 
 class AccountAPI:
@@ -13,7 +13,7 @@ class AccountAPI:
     def __init__(self, client):
         self.client = client
 
-    def get_balances(self, subaccount_id: Optional[str] = None) -> List[Dict]:
+    def get_balances(self, subaccount_id: Optional[str] = None) -> List[Dict[str, Any]]:
         """
         Get the account balances
 
@@ -35,10 +35,13 @@ class AccountAPI:
             ]
         """
         endpoint = "/v1/account/balances"
-        return self.client._get(
-            endpoint=endpoint,
-            auth_type=self.client.SIGNED_AUTH,
-            subaccount_id=subaccount_id,
+        return cast(
+            List[Dict[str, Any]],
+            self.client._get(
+                endpoint=endpoint,
+                auth_type=self.client.SIGNED_AUTH,
+                subaccount_id=subaccount_id,
+            ),
         )
 
     def get_transaction_history(
@@ -50,7 +53,7 @@ class AccountAPI:
         start_time: Optional[int] = None,
         end_time: Optional[int] = None,
         subaccount_id: Optional[str] = None,
-    ):
+    ) -> List[Dict[str, Any]]:
         """
         Get transaction history.
 
@@ -68,7 +71,7 @@ class AccountAPI:
             list: List of transactions.
         """
         endpoint = "/v1/account/transactionhistory"
-        params = {
+        params: Dict[str, Any] = {
             "skip": skip,
             "limit": limit,
         }
@@ -80,16 +83,19 @@ class AccountAPI:
             params["currency"] = currency
 
         if start_time:
-            params["startTime"] = str(start_time)
+            params["startTime"] = start_time
 
         if end_time:
-            params["endTime"] = str(end_time)
+            params["endTime"] = end_time
 
-        return self.client._get(
-            endpoint=endpoint,
-            params=params,
-            auth_type=self.client.SIGNED_AUTH,
-            subaccount_id=subaccount_id,
+        return cast(
+            List[Dict[str, Any]],
+            self.client._get(
+                endpoint=endpoint,
+                params=params,
+                auth_type=self.client.SIGNED_AUTH,
+                subaccount_id=subaccount_id,
+            ),
         )
 
     def get_trade_history(
@@ -98,7 +104,7 @@ class AccountAPI:
         skip: int = 0,
         limit: int = 100,
         subaccount_id: Optional[str] = None,
-    ) -> Dict:
+    ) -> Dict[str, Any]:
         """
         Get trade history for a specific currency pair
 
@@ -134,14 +140,17 @@ class AccountAPI:
             "limit": limit,
         }
 
-        return self.client._get(
-            endpoint=endpoint,
-            params=params,
-            auth_type=self.client.SIGNED_AUTH,
-            subaccount_id=subaccount_id,
+        return cast(
+            Dict[str, Any],
+            self.client._get(
+                endpoint=endpoint,
+                params=params,
+                auth_type=self.client.SIGNED_AUTH,
+                subaccount_id=subaccount_id,
+            ),
         )
 
-    def get_subaccounts(self) -> List[Dict]:
+    def get_subaccounts(self) -> List[Dict[str, Any]]:
         """
         Get all subaccounts
 
@@ -159,11 +168,14 @@ class AccountAPI:
                 ...
             ]
         """
-        return self.client._get(
-            "/v1/account/subaccounts", auth_type=self.client.SIGNED_AUTH
+        return cast(
+            List[Dict[str, Any]],
+            self.client._get(
+                "/v1/account/subaccounts", auth_type=self.client.SIGNED_AUTH
+            ),
         )
 
-    def get_trade_history_by_currency_pair(self, currency_pair: str, limit: int = 10):
+    def get_trade_history_by_currency_pair(self, currency_pair: str, limit: int = 10) -> List[Dict[str, Any]]:
         """
         Get trade history by currency pair.
 
@@ -176,6 +188,9 @@ class AccountAPI:
         """
         endpoint = f"/v1/account/{currency_pair}/tradehistory"
         params = {"limit": limit}
-        return self.client._get(
-            endpoint=endpoint, params=params, auth_type=self.client.SIGNED_AUTH
+        return cast(
+            List[Dict[str, Any]],
+            self.client._get(
+                endpoint=endpoint, params=params, auth_type=self.client.SIGNED_AUTH
+            ),
         )

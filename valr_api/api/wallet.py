@@ -2,7 +2,7 @@
 VALR Wallet API endpoints
 """
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 
 class WalletAPI:
@@ -15,7 +15,7 @@ class WalletAPI:
 
     def get_deposit_address(
         self, currency: str, subaccount_id: Optional[str] = None
-    ) -> Dict:
+    ) -> Dict[str, Any]:
         """
         Get deposit address for a currency
 
@@ -45,7 +45,7 @@ class WalletAPI:
         skip: int = 0,
         limit: int = 100,
         subaccount_id: Optional[str] = None,
-    ) -> Dict:
+    ) -> Dict[str, Any]:
         """
         Get deposit history
 
@@ -100,7 +100,7 @@ class WalletAPI:
         payment_reference: Optional[str] = None,
         tag: Optional[str] = None,
         subaccount_id: Optional[str] = None,
-    ) -> Dict:
+    ) -> Dict[str, Any]:
         """
         Withdraw cryptocurrency
 
@@ -149,7 +149,7 @@ class WalletAPI:
         skip: int = 0,
         limit: int = 100,
         subaccount_id: Optional[str] = None,
-    ) -> Dict:
+    ) -> Dict[str, Any]:
         """
         Get withdrawal history
 
