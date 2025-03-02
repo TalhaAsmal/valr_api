@@ -2,7 +2,7 @@
 VALR Account API endpoints
 """
 
-from typing import Dict, List, Optional, Any, Union, cast
+from typing import Any, Dict, List, Optional, cast
 
 
 class AccountAPI:
@@ -170,12 +170,12 @@ class AccountAPI:
         """
         return cast(
             List[Dict[str, Any]],
-            self.client._get(
-                "/v1/account/subaccounts", auth_type=self.client.SIGNED_AUTH
-            ),
+            self.client._get("/v1/account/subaccounts", auth_type=self.client.SIGNED_AUTH),
         )
 
-    def get_trade_history_by_currency_pair(self, currency_pair: str, limit: int = 10) -> List[Dict[str, Any]]:
+    def get_trade_history_by_currency_pair(
+        self, currency_pair: str, limit: int = 10
+    ) -> List[Dict[str, Any]]:
         """
         Get trade history by currency pair.
 
@@ -190,7 +190,5 @@ class AccountAPI:
         params = {"limit": limit}
         return cast(
             List[Dict[str, Any]],
-            self.client._get(
-                endpoint=endpoint, params=params, auth_type=self.client.SIGNED_AUTH
-            ),
+            self.client._get(endpoint=endpoint, params=params, auth_type=self.client.SIGNED_AUTH),
         )

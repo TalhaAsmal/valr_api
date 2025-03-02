@@ -2,7 +2,7 @@
 VALR Market Data API endpoints
 """
 
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
 
 
 class MarketDataAPI:
@@ -76,9 +76,7 @@ class MarketDataAPI:
         """
         endpoint = f"/v1/marketdata/{currency_pair}/tradehistory"
         params = {"limit": limit}
-        return self.client._get(
-            endpoint=endpoint, params=params, auth_type=self.client.BASIC_AUTH
-        )
+        return self.client._get(endpoint=endpoint, params=params, auth_type=self.client.BASIC_AUTH)
 
     def get_market_summary(self, pair: Optional[str] = None) -> List[Dict[str, Any]]:
         """

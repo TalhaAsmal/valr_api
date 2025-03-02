@@ -2,7 +2,7 @@
 VALR Wallet API endpoints
 """
 
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional
 
 
 class WalletAPI:

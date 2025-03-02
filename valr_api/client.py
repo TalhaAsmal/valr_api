@@ -4,10 +4,10 @@ VALR API client
 
 import json
 import logging
-from typing import Dict, List, Optional, Union, Any, cast
+import time
+from typing import Any, Dict, List, Optional, Union, cast
 
 import requests
-import time
 
 from valr_api.api.account import AccountAPI
 from valr_api.api.market_data import MarketDataAPI
@@ -309,7 +309,11 @@ class ValrClient:
         """
         headers = {"Accept": "application/json", "Content-Type": "application/json"}
 
-        if auth_type == self.SIGNED_AUTH and self.api_secret is not None and self.api_key is not None:
+        if (
+            auth_type == self.SIGNED_AUTH
+            and self.api_secret is not None
+            and self.api_key is not None
+        ):
             timestamp = int(time.time() * 1000)
             signature = generate_signature(
                 api_secret=self.api_secret,
@@ -350,9 +354,9 @@ class ValrClient:
         """
         if auth_type is None:
             auth_type = self.BASIC_AUTH
-            
+
         headers = self._get_headers(auth_type, endpoint, params)
-        
+
         if subaccount_id:
             headers["X-VALR-SUBACCOUNT-ID"] = subaccount_id
 
@@ -362,5 +366,5 @@ class ValrClient:
             headers=headers,
             timeout=self.timeout,
         )
-        
+
         return cast(Union[Dict[str, Any], List[Dict[str, Any]]], self._handle_response(response))
