@@ -1,7 +1,11 @@
+[build-system]
+requires = ["setuptools>=75.8.2", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "valr-api"
 version = "0.1.0"
-description = "Add your description here"
+description = "Python client for the Valr API"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
