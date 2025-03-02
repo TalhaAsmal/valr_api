@@ -176,9 +176,7 @@ class ValrClient:
 
             # Return response data
             if response.text:
-                return cast(
-                    Union[Dict[str, Any], List[Dict[str, Any]]], response.json()
-                )
+                return cast(Union[Dict[str, Any], List[Dict[str, Any]]], response.json())
             return {}
 
         except requests.RequestException as e:
@@ -296,9 +294,7 @@ class ValrClient:
         else:
             raise ValrServerError(error_message)
 
-    def _get_headers(
-        self, auth_type: str, endpoint: str, params=None, data=None
-    ) -> Dict[str, str]:
+    def _get_headers(self, auth_type: str, endpoint: str, params=None, data=None) -> Dict[str, str]:
         """
         Get the headers for the request.
 
@@ -371,6 +367,4 @@ class ValrClient:
             timeout=self.timeout,
         )
 
-        return cast(
-            Union[Dict[str, Any], List[Dict[str, Any]]], self._handle_response(response)
-        )
+        return cast(Union[Dict[str, Any], List[Dict[str, Any]]], self._handle_response(response))

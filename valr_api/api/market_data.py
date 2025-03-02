@@ -63,9 +63,7 @@ class MarketDataAPI:
         endpoint = f"/v1/marketdata/{currency_pair}/orderbook"
         return self.client._get(endpoint=endpoint, auth_type=self.client.BASIC_AUTH)
 
-    def get_trade_history(
-        self, currency_pair: str, limit: int = 100
-    ) -> List[Dict[str, Any]]:
+    def get_trade_history(self, currency_pair: str, limit: int = 100) -> List[Dict[str, Any]]:
         """
         Get trade history for a currency pair.
 
@@ -78,9 +76,7 @@ class MarketDataAPI:
         """
         endpoint = f"/v1/marketdata/{currency_pair}/tradehistory"
         params = {"limit": limit}
-        return self.client._get(
-            endpoint=endpoint, params=params, auth_type=self.client.BASIC_AUTH
-        )
+        return self.client._get(endpoint=endpoint, params=params, auth_type=self.client.BASIC_AUTH)
 
     def get_market_summary(self, pair: Optional[str] = None) -> List[Dict[str, Any]]:
         """
