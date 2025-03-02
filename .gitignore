@@ -11,3 +11,7 @@ wheels/
 
 # uv package manager
 uv.lock
+
+# Test coverage
+.coverage
+htmlcov/
